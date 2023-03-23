@@ -44,8 +44,11 @@ module queens_GPU_call_device_search{
                         on here.gpus[gpu_id] {
 
                                 var root_prefixes = local_active_set;
+                                var _root_prefixes = c_ptrTo(root_prefixes[0]);
                                 var sols: [sols_h.domain] sols_h.eltType;
+                                var _sols = c_ptrTo(sols[sols_h.domain.first]);
                                 var vector_of_tree_size: [vector_of_tree_size_h.domain] vector_of_tree_size_h.eltType;
+                                var _vector_of_tree_size = c_ptrTo(vector_of_tree_size[vector_of_tree_size_h.domain.first]);
 
                                 //writeln("starting loop");
                                 foreach idx in 0..#gpu_load {
@@ -63,10 +66,10 @@ module queens_GPU_call_device_search{
                                         for i in 0..<N_l do  // what happens if I use promotion here?
                                                 board[i] = _EMPTY_;
 
-                                        flag = root_prefixes[idx].control;
+                                        flag = _root_prefixes[idx].control;
 
                                         for i in 0..<depthGlobal do
-                                                board[i] = root_prefixes[idx].board[i];
+                                                board[i] = _root_prefixes[idx].board[i];
 
                                         depth=depthGlobal;
 
@@ -97,8 +100,8 @@ module queens_GPU_call_device_search{
                                         }while(depth >= depthGlobal); //FIM DO DFS_BNB
 
                                         /*writeln("Sols: ", qtd_solucoes_thread);*/
-                                        sols[idx] = qtd_solucoes_thread;
-                                        vector_of_tree_size[idx] = tree_size;
+                                        _sols[idx] = qtd_solucoes_thread;
+                                        _vector_of_tree_size[idx] = tree_size;
                                 }
 
                                 sols_h = sols;
